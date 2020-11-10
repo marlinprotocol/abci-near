@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use borsh::{BorshDeserialize, BorshSerialize};
 use near_crypto::{InMemorySigner, KeyType, PublicKey, Signer};
 use near_pool::{types::PoolIterator, TransactionPool};
 use near_primitives::account::{AccessKey, Account};
@@ -73,7 +74,7 @@ impl GenesisConfig {
     }
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, BorshDeserialize)]
 pub struct Block {
     prev_block: Option<Box<Block>>,
     state_root: CryptoHash,

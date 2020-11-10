@@ -10,6 +10,7 @@ use borsh::ser::BorshSerialize;
 use borsh::BorshDeserialize;
 use log::{debug, error, warn};
 
+use near_chain::test_utils::setup;
 use near_chain::chain::NUM_EPOCHS_TO_KEEP_STORE_DATA;
 use near_chain::types::{ApplyTransactionResult, BlockHeaderInfo};
 use near_chain::{BlockHeader, Error, ErrorKind, RuntimeAdapter};
@@ -1122,6 +1123,8 @@ impl RuntimeAdapter for NightshadeRuntime {
                 }
             }
             QueryRequest::ViewAccessKeyList { account_id } => {
+				warn!(target: "network", "oh in the test function oh no not there");
+				// println!("Something something");
                 match self.view_access_keys(shard_id, *state_root, account_id) {
                     Ok(result) => Ok(QueryResponse {
                         kind: QueryResponseKind::AccessKeyList(
@@ -1143,7 +1146,7 @@ impl RuntimeAdapter for NightshadeRuntime {
                         }),
                         block_height,
                         block_hash: *block_hash,
-                    }),
+					}),
                 }
             }
             QueryRequest::ViewAccessKey { account_id, public_key } => {
@@ -1160,9 +1163,47 @@ impl RuntimeAdapter for NightshadeRuntime {
                         }),
                         block_height,
                         block_hash: *block_hash,
-                    }),
+					}),
+
                 }
-            }
+			}
+			QueryRequest::DummyFunction { account_id, block } => {
+				if let Err(e) = block.check_validity() {
+					Ok(QueryResponse {
+						kind: QueryResponseKind::Error(QueryError {
+							error: e.to_string(),
+							logs: vec![],
+						}),
+						block_height,
+						block_hash: *block_hash
+					}),
+				}
+				// match block.check_validity() {
+				// 	Ok() => {},
+				// 	Err(e) => Ok(QueryResponse {
+				// 		kind: QueryResponseKind::Error(QueryError {
+				// 			error: e.to_string(),
+				// 			logs: vec![],
+				// 		}),
+				// 		block_height,
+				// 		block_hash: *block_hash
+				// 	}),
+				// }
+				let (mut chain, _, signer) = setup();
+				if let Err(e) =	chain.process_block(&None, block, Provenance::PRODUCED, |_| {}, |_| {}, |_| {})
+				{
+					Ok(QueryResponse {
+						kind: QueryResponseKind::Error(QueryError {
+							error: e.to_string(),
+							logs: vec![],
+						}),
+						block_height,
+						block_hash: *block_hash
+					}),
+				}
+
+				Ok()
+			}
         }
     }
 

@@ -687,6 +687,7 @@ fn test_call_function_non_existing_account_method_name() {
 #[test]
 #[ignore] // https://github.com/nearprotocol/nearcore/issues/2792
 fn test_view_access_key_list_non_existing_account() {
+	warn!(target: "network", "oh in the test function")'
     test_with_client!(test_utils::NodeType::NonValidator, client, async move {
         let query_response = client
             .query(RpcQueryRequest {

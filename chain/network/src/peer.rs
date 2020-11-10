@@ -747,10 +747,9 @@ impl StreamHandler<Result<Vec<u8>, ReasonForBan>> for Peer {
                     handshake.peer_id.clone(),
                     &handshake.edge_info,
                 ) {
-                    warn!(target: "network", "Received invalid signature on handshake. Disconnecting peer {}", handshake.peer_id);
                     self.ban_peer(ctx, ReasonForBan::InvalidSignature);
                     return;
-                }
+				}
 
                 // Check that received nonce on handshake match our proposed nonce.
                 if self.peer_type == PeerType::Outbound {

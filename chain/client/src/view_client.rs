@@ -182,7 +182,7 @@ impl ViewClientActor {
                 return response.map(Some);
             }
         }
-
+		warn!(target: "client", "Oh query mili, {:?}", msg.request);
         let header = match msg.block_reference {
             BlockReference::BlockId(BlockId::Height(block_height)) => {
                 self.chain.get_header_by_height(block_height)
@@ -213,7 +213,8 @@ impl ViewClientActor {
             QueryRequest::ViewState { account_id, .. } => account_id,
             QueryRequest::ViewAccessKey { account_id, .. } => account_id,
             QueryRequest::ViewAccessKeyList { account_id, .. } => account_id,
-            QueryRequest::CallFunction { account_id, .. } => account_id,
+			QueryRequest::CallFunction { account_id, .. } => account_id,
+			QueryRequest::DummyFunction { account_id, .. } => account_id
         };
         let shard_id = self.runtime_adapter.account_id_to_shard_id(account_id);
 

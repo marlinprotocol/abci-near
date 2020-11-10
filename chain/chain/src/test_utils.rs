@@ -743,7 +743,15 @@ impl RuntimeAdapter for KeyValueRuntime {
                 }),
                 block_height,
                 block_hash: *block_hash,
-            }),
+			}),
+			QueryRequest::DummyFunction { .. } => Ok(QueryResponse {
+                kind: QueryResponseKind::CallResult(CallResult {
+                    result: Default::default(),
+                    logs: Default::default(),
+                }),
+                block_height,
+                block_hash: *block_hash,
+			})
         }
     }
 

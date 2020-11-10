@@ -114,7 +114,7 @@ fn from_base64_or_parse_err(encoded: String) -> Result<Vec<u8>, RpcError> {
 fn parse_params<T: DeserializeOwned>(value: Option<Value>) -> Result<T, RpcError> {
     if let Some(value) = value {
         serde_json::from_value(value)
-            .map_err(|err| RpcError::invalid_params(format!("Failed parsing args: {}", err)))
+			.map_err(|err| RpcError::invalid_params(format!("Failed parsing args: {}", err)))
     } else {
         Err(RpcError::invalid_params("Require at least one parameter".to_owned()))
     }
@@ -514,9 +514,11 @@ impl JsonRpcHandler {
     }
 
     async fn query(&self, params: Option<Value>) -> Result<Value, RpcError> {
+		println!("parsing");
         let query_request = if let Ok((path, data)) =
             parse_params::<(String, String)>(params.clone())
         {
+			println!("Parsing after");
             // Handle a soft-deprecated version of the query API, which is based on
             // positional arguments with a "path"-style first argument.
             //
@@ -569,6 +571,7 @@ impl JsonRpcHandler {
             // Use Finality::None here to make backward compatibility tests work
             RpcQueryRequest { request, block_reference: BlockReference::latest() }
         } else {
+			println!("Parsing after error");
             parse_params::<RpcQueryRequest>(params)?
         };
         let query = Query::new(query_request.block_reference, query_request.request);
