@@ -17,7 +17,7 @@ use crate::types::{AccountId, Balance, Gas, Nonce};
 
 pub type LogEntry = String;
 
-#[derive(BorshSerialize, BorshDeserialize, Serialize, PartialEq, Eq, Debug, Clone)]
+#[derive(BorshSerialize, BorshDeserialize, Serialize, Deserialize, PartialEq, Eq, Debug, Clone)]
 pub struct Transaction {
     /// An account on which behalf transaction is signed
     pub signer_id: AccountId,
@@ -150,7 +150,7 @@ pub struct DeleteAccountAction {
     pub beneficiary_id: AccountId,
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Serialize, Eq, Debug, Clone)]
+#[derive(BorshSerialize, BorshDeserialize, Serialize, Deserialize, Eq, Debug, Clone)]
 #[borsh_init(init)]
 pub struct SignedTransaction {
     pub transaction: Transaction,

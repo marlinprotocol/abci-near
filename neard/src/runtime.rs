@@ -12,8 +12,8 @@ use log::{debug, error, warn};
 
 use near_chain::test_utils::setup;
 use near_chain::chain::NUM_EPOCHS_TO_KEEP_STORE_DATA;
-use near_chain::types::{ApplyTransactionResult, BlockHeaderInfo};
-use near_chain::{BlockHeader, Error, ErrorKind, RuntimeAdapter};
+use near_chain::types::{ApplyTransactionResult, BlockHeaderInfo, Block};
+use near_chain::{BlockHeader, Error, ErrorKind, RuntimeAdapter, Provenance};
 use near_chain_configs::{Genesis, GenesisConfig};
 use near_crypto::{PublicKey, Signature};
 use near_epoch_manager::{EpochManager, RewardCalculator};
@@ -1167,42 +1167,58 @@ impl RuntimeAdapter for NightshadeRuntime {
 
                 }
 			}
-			QueryRequest::DummyFunction { account_id, block } => {
-				if let Err(e) = block.check_validity() {
-					Ok(QueryResponse {
-						kind: QueryResponseKind::Error(QueryError {
-							error: e.to_string(),
-							logs: vec![],
-						}),
-						block_height,
-						block_hash: *block_hash
-					}),
-				}
-				// match block.check_validity() {
-				// 	Ok() => {},
-				// 	Err(e) => Ok(QueryResponse {
-				// 		kind: QueryResponseKind::Error(QueryError {
-				// 			error: e.to_string(),
-				// 			logs: vec![],
-				// 		}),
-				// 		block_height,
-				// 		block_hash: *block_hash
-				// 	}),
-				// }
-				let (mut chain, _, signer) = setup();
-				if let Err(e) =	chain.process_block(&None, block, Provenance::PRODUCED, |_| {}, |_| {}, |_| {})
-				{
-					Ok(QueryResponse {
-						kind: QueryResponseKind::Error(QueryError {
-							error: e.to_string(),
-							logs: vec![],
-						}),
-						block_height,
-						block_hash: *block_hash
-					}),
-				}
+			QueryRequest::DummyFunction { account_id, block_bin } => {
+				// let c: &mut &[u8] = &block_bin;
+				if let Ok(block) = Block::deserialize(&mut &block_bin[..]) {
 
-				Ok()
+					warn!(target: "network", "something something in DummyFunction: {:?} \n {:?} \n {:?}", block_bin, account_id, block);
+
+					if let Err(_e) = block.check_validity() {
+						return Ok(QueryResponse {
+							kind: QueryResponseKind::Error(QueryError {
+								error: "blockValidity bad".to_string(),
+								logs: vec![],
+							}),
+							block_height,
+							block_hash: *block_hash
+						});
+					}
+					let (mut chain, _, _) = setup();
+
+					warn!(target: "network", "Chain is this: {:?}", chain.genesis());
+
+					if let Err(_e) = chain.process_block(&None, block, Provenance::PRODUCED, |_| {}, |_| {}, |_| {})
+					{
+						warn!(target: "network", "error is in chain: {:?}", _e);
+						return Ok(QueryResponse {
+							kind: QueryResponseKind::Error(QueryError {
+								error: "yo yo yo".to_string(),
+								logs: vec![],
+							}),
+							block_height,
+							block_hash: *block_hash
+						});
+					}
+
+					Ok(QueryResponse {
+						kind: QueryResponseKind::Error(QueryError {
+							error: "something".to_string(),
+							logs: vec![],
+						}),
+						block_height,
+						block_hash: *block_hash
+					})
+				} else {
+					warn!(target: "network", "something fucked up");
+					Ok(QueryResponse {
+						kind: QueryResponseKind::Error(QueryError {
+							error: "something something no papa".to_string(),
+							logs: vec![],
+						}),
+						block_height,
+						block_hash: *block_hash
+					})
+				}
 			}
         }
     }

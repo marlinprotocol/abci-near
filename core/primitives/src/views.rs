@@ -237,7 +237,16 @@ pub enum QueryRequest {
         method_name: String,
         #[serde(rename = "args_base64", with = "base64_format")]
         args: FunctionArgs,
-    },
+	},
+	DummyFunction {
+		account_id: AccountId,
+		block_bin: Vec <u8>
+	}
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]
+pub struct BlockHex {
+	pub buf: Vec <u8>,
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Serialize, Deserialize, Debug, PartialEq, Eq, Clone)]

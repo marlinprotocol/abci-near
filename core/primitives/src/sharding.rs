@@ -1,6 +1,6 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use reed_solomon_erasure::galois_8::{Field, ReedSolomon};
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 use near_crypto::Signature;
 
@@ -25,6 +25,8 @@ use reed_solomon_erasure::ReconstructShard;
     Debug,
     Default,
 )]
+
+#[derive(Deserialize)]
 pub struct ChunkHash(pub CryptoHash);
 
 impl AsRef<[u8]> for ChunkHash {
@@ -57,7 +59,7 @@ pub struct StateSyncInfo {
     pub shards: Vec<ShardInfo>,
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Serialize, Clone, PartialEq, Eq, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Serialize, Deserialize, Clone, PartialEq, Eq, Debug)]
 pub struct ShardChunkHeaderInner {
     /// Previous block hash.
     pub prev_block_hash: CryptoHash,
@@ -83,7 +85,7 @@ pub struct ShardChunkHeaderInner {
     pub validator_proposals: Vec<ValidatorStake>,
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Serialize, Clone, PartialEq, Eq, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Serialize, Deserialize, Clone, PartialEq, Eq, Debug)]
 #[borsh_init(init)]
 pub struct ShardChunkHeader {
     pub inner: ShardChunkHeaderInner,
@@ -172,7 +174,7 @@ pub struct PartialEncodedChunkPart {
     pub merkle_proof: MerklePath,
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Serialize, Debug, Clone, Eq, PartialEq)]
+#[derive(BorshSerialize, BorshDeserialize, Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]
 pub struct ShardChunk {
     pub chunk_hash: ChunkHash,
     pub header: ShardChunkHeader,
@@ -180,7 +182,7 @@ pub struct ShardChunk {
     pub receipts: Vec<Receipt>,
 }
 
-#[derive(Default, BorshSerialize, BorshDeserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(Default, BorshSerialize, BorshDeserialize, Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct EncodedShardChunkBody {
     pub parts: Vec<Option<Box<[u8]>>>,
 }
@@ -214,7 +216,7 @@ impl EncodedShardChunkBody {
 #[derive(BorshSerialize, BorshDeserialize, Serialize)]
 struct TransactionReceipt(Vec<SignedTransaction>, Vec<Receipt>);
 
-#[derive(BorshSerialize, BorshDeserialize, Serialize, Debug, Clone, PartialEq, Eq)]
+#[derive(BorshSerialize, BorshDeserialize, Serialize, Deserialize, Debug, Clone, PartialEq, Eq)]
 pub struct EncodedShardChunk {
     pub header: ShardChunkHeader,
     pub content: EncodedShardChunkBody,

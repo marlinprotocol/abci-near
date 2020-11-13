@@ -951,7 +951,7 @@ impl RuntimeAdapter for KeyValueRuntime {
 }
 
 pub fn setup() -> (Chain, Arc<KeyValueRuntime>, Arc<InMemoryValidatorSigner>) {
-    setup_with_tx_validity_period(100)
+    setup_with_tx_validity_period(10000)
 }
 
 pub fn setup_with_tx_validity_period(

@@ -5,7 +5,7 @@ use chrono::{DateTime, Utc};
 use near_crypto::Signature;
 use num_rational::Rational;
 use primitive_types::U256;
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 use crate::block::BlockValidityError::{
     InvalidChallengeRoot, InvalidChunkHeaderRoot, InvalidNumChunksIncluded, InvalidReceiptRoot,
@@ -41,7 +41,7 @@ pub enum BlockValidityError {
     InvalidChallengeRoot,
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Serialize, Debug, Clone, Eq, PartialEq)]
+#[derive(BorshSerialize, Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]
 pub struct BlockV1 {
     pub header: BlockHeader,
     pub chunks: Vec<ShardChunkHeader>,
@@ -52,9 +52,43 @@ pub struct BlockV1 {
     pub vrf_proof: near_crypto::vrf::Proof,
 }
 
+#[derive(BorshDeserialize)]
+pub struct BlockV1Copy {
+    pub header: BlockHeader,
+    pub chunks: Vec<ShardChunkHeader>,
+    pub challenges: Challenges,
+
+    // Data to confirm the correctness of randomness beacon output
+    pub vrf_value: near_crypto::vrf::Value,
+    pub vrf_proof: near_crypto::vrf::Proof,
+}
+
+impl BorshDeserialize for BlockV1 {
+    fn deserialize(buf: &mut &[u8]) -> std::io::Result<Self> {
+		// Detect the current and oldest supported version from the header
+		match 1 {
+			_ => BlockV1Copy::deserialize(buf).map(Into::into),
+		}
+		// Ok(BorshDeserialize::deserialize(buf).map(Into::into));
+    }
+}
+
+
+impl From<BlockV1Copy> for BlockV1 {
+    fn from(block: BlockV1Copy) -> Self {
+        Self {
+            header: block.header,
+            chunks: block.chunks,
+            challenges: block.challenges,
+            vrf_value: block.vrf_value,
+            vrf_proof: block.vrf_proof,
+        }
+    }
+}
+
 /// Versioned Block data structure.
 /// For each next version, document what are the changes between versions.
-#[derive(BorshSerialize, BorshDeserialize, Serialize, Debug, Clone, Eq, PartialEq)]
+#[derive(BorshSerialize, BorshDeserialize, Serialize, Deserialize, Debug, Clone, Eq, PartialEq)]
 pub enum Block {
     BlockV1(Box<BlockV1>),
 }

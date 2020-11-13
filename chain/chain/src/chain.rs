@@ -680,6 +680,7 @@ impl Chain {
         F2: Copy + FnMut(Vec<ShardChunkHeader>) -> (),
         F3: Copy + FnMut(ChallengeBody) -> (),
     {
+		// warn!(target: "network", "wooohoooo: {:?}", self.genesis());
         let block_hash = *block.hash();
         let timer = near_metrics::start_timer(&metrics::BLOCK_PROCESSING_TIME);
         let res = self.process_block_single(

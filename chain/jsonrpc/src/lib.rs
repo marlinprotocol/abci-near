@@ -112,6 +112,7 @@ fn from_base64_or_parse_err(encoded: String) -> Result<Vec<u8>, RpcError> {
 }
 
 fn parse_params<T: DeserializeOwned>(value: Option<Value>) -> Result<T, RpcError> {
+	println!("{:?}", value);
     if let Some(value) = value {
         serde_json::from_value(value)
 			.map_err(|err| RpcError::invalid_params(format!("Failed parsing args: {}", err)))
